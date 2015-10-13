@@ -110,13 +110,16 @@ int __cdecl main(int argc, char **argv)
 		WSACleanup();
 		return 1;
 	}
+
+	printf("Client has connected to server\n");
+
 	//Client waits for Welcome message from Server
 
 	//Get Server Welcome Message
 	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-	if (iResult == 0)
+	if (iResult == SOCKET_ERROR)
 	{
-		printf("recv error");
+		printf("recv failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
@@ -130,7 +133,7 @@ int __cdecl main(int argc, char **argv)
 	}
 	else
 	{
-		printf("not welcome message");
+		printf("did not get welcome message");
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
@@ -150,7 +153,7 @@ int __cdecl main(int argc, char **argv)
 	sendbuf2[tempI2] = '\n';
 
 	//Client sends ID and name as two new line terminated messages
-	//send null terminated string for id
+	//send \n terminated string for id
 	iResult = send(ConnectSocket, sendbuf, tempI + 1, 0);
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed with error: %d\n", WSAGetLastError());
@@ -158,7 +161,7 @@ int __cdecl main(int argc, char **argv)
 		WSACleanup();
 		return 1;
 	}
-	//send null terminated string for name
+	//send \n terminated string for name
 	iResult = send(ConnectSocket, sendbuf2, tempI2  +1 , 0);
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed with error: %d\n", WSAGetLastError());
@@ -172,7 +175,7 @@ int __cdecl main(int argc, char **argv)
 	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 	if (iResult == 0)
 	{
-		printf("Recv error");
+		printf("recv failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
@@ -186,19 +189,20 @@ int __cdecl main(int argc, char **argv)
 		}
 		else
 		{
-			printf("unknown message received");
+			printf("unknown message received\n");
 		}
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
 	}
+	printf("received success message\n");
 
 	//If client gets “Success” will prompt user for a password
 
 	printf("Please enter your password:\n");
-	scanf("%s", sendbuf, sendbuf2);
+	scanf("%s", sendbuf);
 
-	tempI = strlen(sendbuf) -1;
+	tempI = strlen(sendbuf);
 
 	networdByteOrder = htons(tempI);
 
@@ -225,18 +229,18 @@ int __cdecl main(int argc, char **argv)
 	//The client gets revc end message
 	//Client first get lenght of message
 	iResult = recv(ConnectSocket, &networdByteOrder, sizeof(UINT16), 0);
-	if (iResult == 0)
+	if (iResult == SOCKET_ERROR)
 	{
-		printf("Recv error");
+		printf("recv failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
 	}
 	networdByteOrder = ntohs(networdByteOrder);
 	iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-	if (iResult == 0)
+	if (iResult == SOCKET_ERROR)
 	{
-		printf("Recv error");
+		printf("recv failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return 1;
